@@ -1,0 +1,5 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+body { @apply bg-cream text-brown; }
+.btn { @apply bg-brown text-cream px-4 py-2 rounded font-medium hover:opacity-90; }
+.inp { @apply border border-tan bg-white rounded px-3 py-2 w-full; }
+.card { @apply border border-tan rounded bg-white/60 p-3; }

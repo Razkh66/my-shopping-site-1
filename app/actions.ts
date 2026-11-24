@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
+import { supa, staff } from "@/lib/auth";
 const sid = () => cookies().get("sid")?.value ?? "";
 const s = (fd: FormData, k: string) => String(fd.get(k) ?? "");
 const err = (to: string, m: string) => redirect(`${to}?error=${encodeURIComponent(m)}`);
@@ -31,6 +32,13 @@ export async function uploadSlip(fd: FormData) {
   revalidatePath(`/order/${number}`);
 }
 export async function setStatus(fd: FormData) {
+  if (!(await staff())) throw new Error("Not allowed");
   await db().rpc("set_order_status", { p_n: s(fd, "number"), p_s: s(fd, "status") });
   revalidatePath("/admin");
 }
+export async function login(fd: FormData) {
+  const { error } = await supa().auth.signInWithPassword({ email: s(fd, "email"), password: s(fd, "password") });
+  if (error) err("/admin/login", "Wrong email or password");
+  redirect("/admin");
+}
+export async function logout() { await supa().auth.signOut(); redirect("/admin/login"); }
